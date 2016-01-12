@@ -1,0 +1,1 @@
+# Gauge plugin for grafana
