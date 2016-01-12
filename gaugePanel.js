@@ -42,19 +42,6 @@ function (angular, app, _, $) {
           }
         }
 
-        function applyColoringThresholds(value, valueString) {
-          if (!panel.colorValue) {
-            return valueString;
-          }
-
-          var color = getColorForValue(value);
-          if (color) {
-            return '<span style="color:' + color + '">'+ valueString + '</span>';
-          }
-
-          return valueString;
-        }
-
         function getColorForValue(value) {
           for (var i = data.thresholds.length - 1; i >= 0 ; i--) {
             if (value >= data.thresholds[i]) {
@@ -62,27 +49,6 @@ function (angular, app, _, $) {
             }
           }
           return null;
-        }
-
-        function getSpan(className, fontSize, value)  {
-          value = templateSrv.replace(value);
-          return '<span class="' + className + '" style="font-size:' + fontSize + '">' +
-            value + '</span>';
-        }
-
-        function getBigValueHtml() {
-          var body = '<div class="gauge-panel-value-container">';
-
-          if (panel.prefix) { body += getSpan('gauge-panel-prefix', panel.prefixFontSize, scope.panel.prefix); }
-
-          var value = applyColoringThresholds(data.valueRounded, data.valueFormated);
-          body += getSpan('gauge-panel-value', panel.valueFontSize, value);
-
-          if (panel.postfix) { body += getSpan('gauge-panel-postfix', panel.postfixFontSize, panel.postfix); }
-
-          body += '</div>';
-
-          return body;
         }
 
         function addGauge() {
@@ -125,7 +91,7 @@ function (angular, app, _, $) {
                   width: 8
                 },
                 value: {
-                  color: panel.colorValue ? getColorForValue(data.valueRounded) : null,
+                  color: panel.colorValue ? getColorForValue(data.value) : null,
                   formatter: function () { return data.valueFormated; }
                 },
                 show: true
@@ -142,61 +108,6 @@ function (angular, app, _, $) {
           $.plot(plotCanvas, [plotSeries], options);
         }
 
-        function addSparkline() {
-          var panel = scope.panel;
-          var width = elem.width() + 20;
-          var height = elem.height() || 100;
-
-          var plotCanvas = $('<div></div>');
-          var plotCss = {};
-          plotCss.position = 'absolute';
-
-          if (panel.sparkline.full) {
-            plotCss.bottom = '5px';
-            plotCss.left = '-5px';
-            plotCss.width = (width - 10) + 'px';
-            var dynamicHeightMargin = height <= 100 ? 5 : (Math.round((height/100)) * 15) + 5;
-            plotCss.height = (height - dynamicHeightMargin) + 'px';
-          }
-          else {
-            plotCss.bottom = "0px";
-            plotCss.left = "-5px";
-            plotCss.width = (width - 10) + 'px';
-            plotCss.height = Math.floor(height * 0.25) + "px";
-          }
-
-          plotCanvas.css(plotCss);
-
-          var options = {
-            legend: { show: false },
-            series: {
-              lines:  {
-                show: true,
-                fill: 1,
-                lineWidth: 1,
-                fillColor: panel.sparkline.fillColor,
-              },
-            },
-            yaxes: { show: false },
-            xaxis: {
-              show: false,
-              mode: "time",
-              min: scope.range.from.valueOf(),
-              max: scope.range.to.valueOf(),
-            },
-            grid: { hoverable: false, show: false },
-          };
-
-          elem.append(plotCanvas);
-
-          var plotSeries = {
-            data: data.flotpairs,
-            color: panel.sparkline.lineColor
-          };
-
-          $.plot(plotCanvas, [plotSeries], options);
-        }
-
         function render() {
           if (!scope.data) { return; }
 
@@ -205,32 +116,8 @@ function (angular, app, _, $) {
 
           setElementHeight();
 
-          var body = panel.gauge.show ? '' : getBigValueHtml();
-
-          if (panel.colorBackground && !isNaN(data.valueRounded)) {
-            var color = getColorForValue(data.valueRounded);
-            if (color) {
-              $panelContainer.css('background-color', color);
-              if (scope.fullscreen) {
-                elem.css('background-color', color);
-              } else {
-                elem.css('background-color', '');
-              }
-            }
-          } else {
-            $panelContainer.css('background-color', '');
-            elem.css('background-color', '');
-          }
-
-          elem.html(body);
-
-          if (panel.gauge.show) {
-            addGauge();
-          }
-
-          if (panel.sparkline.show) {
-            addSparkline();
-          }
+          elem.html('')
+          addGauge();
 
           elem.toggleClass('pointer', panel.links.length > 0);
 

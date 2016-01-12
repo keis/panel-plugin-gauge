@@ -29,10 +29,7 @@ function (angular, app, _, kbn, TimeSeries, PanelMeta) {
       metricsEditor: true
     });
 
-    $scope.fontSizes = ['20%', '30%','50%','70%','80%','100%', '110%', '120%', '150%', '170%', '200%'];
-
     $scope.panelMeta.addEditorTab('Options', 'public/plugins/gauge/editor.html');
-    $scope.panelMeta.addEditorTab('Time range', 'app/features/panel/partials/panelTime.html');
 
     // Set and populate defaults
     var _d = {
@@ -43,32 +40,12 @@ function (angular, app, _, kbn, TimeSeries, PanelMeta) {
       targets: [{}],
       cacheTimeout: null,
       format: 'none',
-      prefix: '',
-      postfix: '',
-      nullText: null,
-      valueMaps: [
-        { value: 'null', op: '=', text: 'N/A' }
-      ],
-      nullPointMode: 'connected',
       valueName: 'avg',
-      prefixFontSize: '50%',
-      valueFontSize: '80%',
-      postfixFontSize: '50%',
       thresholds: '',
-      colorBackground: false,
       colorValue: false,
       colors: ["rgba(245, 54, 54, 0.9)", "rgba(237, 129, 40, 0.89)", "rgba(50, 172, 45, 0.97)"],
-      sparkline: {
-        show: false,
-        full: false,
-        lineColor: 'rgb(31, 120, 193)',
-        fillColor: 'rgba(31, 118, 189, 0.18)',
-      },
-      gauge: {
-        show: false,
-        minValue: 0,
-        maxValue: 100
-      }
+      minValue: 0,
+      maxValue: 100
     };
 
     _.defaults($scope.panel, _d);
@@ -113,18 +90,6 @@ function (angular, app, _, kbn, TimeSeries, PanelMeta) {
       series.flotpairs = series.getFlotPairs($scope.panel.nullPointMode);
 
       return series;
-    };
-
-    $scope.setColoring = function(options) {
-      if (options.background) {
-        $scope.panel.colorValue = false;
-        $scope.panel.colors = ['rgba(71, 212, 59, 0.4)', 'rgba(245, 150, 40, 0.73)', 'rgba(225, 40, 40, 0.59)'];
-      }
-      else {
-        $scope.panel.colorBackground = false;
-        $scope.panel.colors = ['rgba(50, 172, 45, 0.97)', 'rgba(237, 129, 40, 0.89)', 'rgba(245, 54, 54, 0.9)'];
-      }
-      $scope.render();
     };
 
     $scope.invertColorOrder = function() {
@@ -218,39 +183,9 @@ function (angular, app, _, kbn, TimeSeries, PanelMeta) {
         }
       }
 
-      // check value to text mappings
-      for(var i = 0; i < $scope.panel.valueMaps.length; i++) {
-        var map = $scope.panel.valueMaps[i];
-        // special null case
-        if (map.value === 'null') {
-          if (data.value === null || data.value === void 0) {
-            data.valueFormated = map.text;
-            return;
-          }
-          continue;
-        }
-
-        // value/number to text mapping
-        var value = parseFloat(map.value);
-        if (value === data.value) {
-          data.valueFormated = map.text;
-          return;
-        }
-      }
-
       if (data.value === null || data.value === void 0) {
         data.valueFormated = "no value";
       }
-    };
-
-    $scope.removeValueMap = function(map) {
-      var index = _.indexOf($scope.panel.valueMaps, map);
-      $scope.panel.valueMaps.splice(index, 1);
-      $scope.render();
-    };
-
-    $scope.addValueMap = function() {
-      $scope.panel.valueMaps.push({value: '', op: '=', text: '' });
     };
 
     $scope.init();
