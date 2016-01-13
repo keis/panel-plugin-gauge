@@ -76,14 +76,14 @@ function (angular, app, _, $) {
           var options = {
             series: {
               gauges: {
-                debug: { log: true },
                 gauge: {
                   min: panel.gauge.minValue,
                   max: panel.gauge.maxValue,
-                  frameColor: 'rgb(38,38,38)',
-                  stroke: { color: null },
+                  background: { color: 'rgb(38,38,38)' },
+                  border: { color: null },
                   shadow: { show: false },
                 },
+                frame: { show: false },
                 layout: { margin: 0 },
                 cell: { border: { width: 0 } },
                 threshold: {
