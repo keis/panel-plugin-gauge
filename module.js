@@ -153,33 +153,37 @@ function (angular, app, _, kbn, TimeSeries, PanelMeta) {
       $scope.$broadcast('render');
     };
 
+    function getValueFromSeries(series) {
+      var lastPoint = _.last(series.datapoints);
+      var lastValue = _.isArray(lastPoint) ? lastPoint[0] : null;
+
+      if (_.isString(lastValue)) {
+        return {
+          value: 0,
+          valueFormated: lastValue,
+          valueRounded: 0
+        };
+      }
+
+      var value = series.stats[$scope.panel.valueName];
+      var decimalInfo = $scope.getDecimalsForValue(value);
+      var formatFunc = kbn.valueFormats[$scope.panel.format];
+
+      return {
+        value: value,
+        flotpairs: series.flotpairs,
+        valueFormated: formatFunc(value, decimalInfo.decimals, decimalInfo.scaledDecimals),
+        valueRounded: kbn.roundValue(value, decimalInfo.decimals)
+      };
+    }
+
     $scope.setValues = function(data) {
       data.flotpairs = [];
 
-      if($scope.series.length > 1) {
-        $scope.inspector.error = new Error();
-        $scope.inspector.error.message = 'Multiple Series Error';
-        $scope.inspector.error.data = 'Metric query returns ' + $scope.series.length +
-        ' series. Single Stat Panel expects a single series.\n\nResponse:\n'+JSON.stringify($scope.series);
-        throw $scope.inspector.error;
-      }
-
       if ($scope.series && $scope.series.length > 0) {
-        var lastPoint = _.last($scope.series[0].datapoints);
-        var lastValue = _.isArray(lastPoint) ? lastPoint[0] : null;
-
-        if (_.isString(lastValue)) {
-          data.value = 0;
-          data.valueFormated = lastValue;
-          data.valueRounded = 0;
-        } else {
-          data.value = $scope.series[0].stats[$scope.panel.valueName];
-          data.flotpairs = $scope.series[0].flotpairs;
-
-          var decimalInfo = $scope.getDecimalsForValue(data.value);
-          var formatFunc = kbn.valueFormats[$scope.panel.format];
-          data.valueFormated = formatFunc(data.value, decimalInfo.decimals, decimalInfo.scaledDecimals);
-          data.valueRounded = kbn.roundValue(data.value, decimalInfo.decimals);
+        _.extend(data, getValueFromSeries($scope.series[0]));
+        if ($scope.series.length >= 2) {
+          data.maxValue = getValueFromSeries($scope.series[1]).value;
         }
       }
 

@@ -78,7 +78,7 @@ function (angular, app, _, $) {
               gauges: {
                 gauge: {
                   min: panel.gauge.minValue,
-                  max: panel.gauge.maxValue,
+                  max: data.maxValue || panel.gauge.maxValue,
                   background: { color: 'rgb(38,38,38)' },
                   border: { color: null },
                   shadow: { show: false },
