@@ -1,13 +1,8 @@
 {
-  "pluginType": "panel",
+  "type": "panel",
 
   "name": "Gauge",
-  "type": "gauge",
+  "id": "gauge",
 
-  "module": "plugins/gauge/module",
-
-  "staticRoot": {
-    "url": "gauge",
-    "path": "."
-  }
+  "staticRoot": "."
 }
