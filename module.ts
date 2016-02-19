@@ -2,7 +2,7 @@ import angular from 'angular';
 import * as _ from 'lodash';
 import * as $ from 'jquery';
 import 'jquery.flot';
-import 'jquery.flot.gauge';
+import './vendor/jquery.flot.gauge';
 
 import * as kbn from 'app/core/utils/kbn';
 import TimeSeries from 'app/core/time_series2';
